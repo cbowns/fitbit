@@ -1,40 +1,24 @@
-#!/bin/zsh -x
+#!/bin/zsh
+# A short script to clean up fitbitd's verbose logging, by redirecting it to a logfile.
 # Created by Christopher Bowns on 2011-09-25
 # Copyright 2011 Mechanical Pants Software
 
-# here's the deal:
-# 1. set /Library/LaunchDaemons/com.fitbit.fitbitd:
-#      StandardErrorPath = "/private/var/log/fitbit.stderr";
+# here's the lowdown:
+# 1. set /Library/LaunchDaemons/com.fitbit.fitbitd's StandardErrorPath to /var/log/fitbitd.log
 # 2. kick launchd so it sees the new entry
-# 3. install newsyslog.conf entry.
+# 3. install an entry in newsyslog.conf so we rotate and toss old logs periodically
 
 githubissues="https://github.com/cbowns/fitbit/issues/new"
 
 fitbitplistshort="/Library/LaunchDaemons/com.fitbit.fitbitd"
 fitbitplist="$fitbitplistshort.plist"
 stderrkey="StandardErrorPath"
-fitbitlogpath="/private/var/log/fitbitd.log"
+fitbitlogpath_noprivate="/var/log/fitbitd.log"
+fitbitlogpath="/private$fitbitlogpath_noprivate"
 fitbitjobkey="com.fitbit.fitbitd"
 
-# 1.
-#   defaults read /Library/LaunchDaemons/com.fitbit.fitbitd StandardErrorPath
-# if non-zero status, continue.
-# otherwise exit?
-#   sudo defaults write /Library/LaunchDaemons/com.fitbit.fitbitd StandardErrorPath "/private/var/log/fitbitd.log"
-# fix this plist to be world-readable:
-#   sudo chmod a+r /Library/LaunchDaemons/com.fitbit.fitbitd.plist
-# make the log path:
-#   sudo touch /var/log/fitbitd.log
-# and make it world-writable (otherwise launchd can't redirect output to it)
-#   sudo chown nobody:admin /var/log/fitbitd.log
-# load the new entry:
-#   sudo launchctl unload /Library/LaunchDaemons/com.fitbit.fitbitd.plist
-#   sudo launchctl load /Library/LaunchDaemons/com.fitbit.fitbitd.plist
-# then grep launchctl list for our entry:
-#   sudo launchctl list com.fitbit.fitbitd | grep StandardErrorPath
-# if it exits with non-zero status, apologize.
-	# todo: have some debugging option to turn on for issues? or a command to run install.sh with for more info?
-defaults read $fitbitplistshort $stderrkey
+
+defaults read $fitbitplistshort $stderrkey 2>&1 > /dev/null
 exitStatus=$?
 if [ $exitStatus != 0 ]; then
 	echo "Setting up fitbitd output redirection"
@@ -57,25 +41,19 @@ if [ $exitStatus != 0 ]; then
 		echo "fitbitd output redirection done"
 	fi
 else
-	echo "fitbitd's output is already redirected to $fitbitlogpath, skipping launchd setup"
+	echo "fitbitd's output is already redirected to $fitbitlogpath_noprivate, skipping launchd setup"
 fi
 
 
-# 2.
-# install an entry for newsyslogd to rotate our logs on our behalf:
+newsyslogpath="/etc/newsyslog.conf"
+syslogRotationEntry="/private/var/log/fitbitd.log 640 7 1000 * JN"
 
-newsyslog=/etc/newsyslog.conf
-syslogRotationEntry="/var/log/fitbitd.log 640 7 1000 * JN"
-
-grep "/var/log/fitbitd.log" $newsyslog
+grep $fitbitlogpath_noprivate $newsyslogpath 2>&1 > /dev/null
 exitStatus=$?
 if [ $exitStatus != 0 ]; then
-	echo "grep didn't find the log entry, installing."
+	echo "Setting up fitbitd log rotation"
 	# some trickery here with tee to append it as root but not print the output:
-	echo $syslogRotationEntry | sudo tee -a $newsyslog > /dev/null
+	echo $syslogRotationEntry | sudo tee -a $newsyslogpath
 else
-	echo "grep succeeded"
+	echo "Log rotation for $fitbitlogpath_noprivate is already installed to $newsyslogpath, skipping"
 fi
-
-
-# 3. 

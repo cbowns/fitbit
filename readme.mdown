@@ -1,6 +1,6 @@
 # Improvements to the Fitbit installer for Mac OS X
 
-Out of the box, the Fitbit software runs with its log output sent straight to Console. This is unnecessarily noisy if you use Console a lot, and bloats the syslog archives. This little Fitbit install fixer-upper will:
+Out of the box, the Fitbit software sends all its logs straight to Console. This is unnecessarily noisy if you use Console a lot, and it bloats the syslog archives. This little fix-up script for the Fitbit installer will:
 
-- Redirect fitbitd's logs to /var/log/fitbitd.log
-- Add an entry to OS X's built-in log rotation to compress and turn over these logs when they get too big.
+- Redirect fitbitd's logs to its own log file at /var/log/fitbitd.log
+- Add an entry to OS X's built-in log rotation to compress and turn over these logs when they get large.

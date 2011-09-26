@@ -18,20 +18,20 @@ fitbitlogpath="/private/$fitbitlogpath_noprivate"
 fitbitjobkey="com.fitbit.fitbitd"
 
 
-defaults read $fitbitplistshort $stderrkey 2>&1 > /dev/null
+{ defaults read $fitbitplistshort $stderrkey 2>&1 } > /dev/null
 exitStatus=$?
 if [ $exitStatus != 0 ]; then
 	echo "Setting up fitbitd output redirection"
-	
+
 	sudo defaults write $fitbitplistshort $stderrkey "$fitbitlogpath" 2>&1 > /dev/null
 	sudo chmod a+r $fitbitplist
-	
+
 	sudo touch $fitbitlogpath
 	sudo chown nobody:admin $fitbitlogpath
-	
+
 	sudo launchctl unload $fitbitplist
 	sudo launchctl load $fitbitplist
-	
+
 	sudo launchctl list $fitbitjobkey | grep $stderrkey 2>&1 > /dev/null
 	exitStatus=$?
 	if [ $exitStatus != 0 ]; then

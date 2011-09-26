@@ -14,7 +14,7 @@ fitbitplistshort="/Library/LaunchDaemons/com.fitbit.fitbitd"
 fitbitplist="$fitbitplistshort.plist"
 stderrkey="StandardErrorPath"
 fitbitlogpath_noprivate="/var/log/fitbitd.log"
-fitbitlogpath="/private$fitbitlogpath_noprivate"
+fitbitlogpath="/private/$fitbitlogpath_noprivate"
 fitbitjobkey="com.fitbit.fitbitd"
 
 
@@ -23,7 +23,7 @@ exitStatus=$?
 if [ $exitStatus != 0 ]; then
 	echo "Setting up fitbitd output redirection"
 	
-	sudo defaults write $fitbitplistshort $stderrkey "$fitbitlogpath"
+	sudo defaults write $fitbitplistshort $stderrkey "$fitbitlogpath" 2>&1 > /dev/null
 	sudo chmod a+r $fitbitplist
 	
 	sudo touch $fitbitlogpath
@@ -32,7 +32,7 @@ if [ $exitStatus != 0 ]; then
 	sudo launchctl unload $fitbitplist
 	sudo launchctl load $fitbitplist
 	
-	sudo launchctl list $fitbitjobkey | grep $stderrkey
+	sudo launchctl list $fitbitjobkey | grep $stderrkey 2>&1 > /dev/null
 	exitStatus=$?
 	if [ $exitStatus != 0 ]; then
 		echo "Couldn't find log redirection in launchd job! Please report an issue at $githubissues."

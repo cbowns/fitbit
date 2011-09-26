@@ -46,7 +46,7 @@ fi
 
 
 newsyslogpath="/etc/newsyslog.conf"
-syslogRotationEntry="/private/var/log/fitbitd.log 640 7 1000 * JN"
+syslogRotationEntry="/var/log/fitbitd.log 666 7 1000 * J /var/run/com.fitbit.fitbitd.pid 14"
 
 grep $fitbitlogpath_noprivate $newsyslogpath 2>&1 > /dev/null
 exitStatus=$?

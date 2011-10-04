@@ -21,4 +21,4 @@ Out of the box, the Fitbit software sends all its logs straight to Console. This
 
 ## Having issues?
 
-File a bug at https://github.com/cbowns/fitbit/issues/new with as much information as you can provide, and I'll see what I can do.
+File a bug at https://github.com/cbowns/fitbit/issues/new with as much information as you can provide, and I'll see what's up.

@@ -14,7 +14,7 @@ fitbitplistshort="/Library/LaunchDaemons/com.fitbit.fitbitd"
 fitbitplist="$fitbitplistshort.plist"
 stderrkey="StandardErrorPath"
 fitbitlogpath_noprivate="/var/log/fitbitd.log"
-fitbitlogpath="/private/$fitbitlogpath_noprivate"
+fitbitlogpath="/private$fitbitlogpath_noprivate"
 fitbitjobkey="com.fitbit.fitbitd"
 
 

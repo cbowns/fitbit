@@ -13,17 +13,21 @@ githubissues="https://github.com/cbowns/fitbit/issues/new"
 fitbitplistshort="/Library/LaunchDaemons/com.fitbit.fitbitd"
 fitbitplist="$fitbitplistshort.plist"
 stderrkey="StandardErrorPath"
+stdoutkey="StandardOutPath"
 fitbitlogpath_noprivate="/var/log/fitbitd.log"
 fitbitlogpath="/private$fitbitlogpath_noprivate"
 fitbitjobkey="com.fitbit.fitbitd"
 
 
 { defaults read $fitbitplistshort $stderrkey 2>&1 } > /dev/null
-exitStatus=$?
-if [ $exitStatus != 0 ]; then
+stdErrExists=$?
+{ defaults read $fitbitplistshort $stdoutkey 2>&1 } > /dev/null
+stdOutExists=$?
+if [ $stdErrExists != 0 -o $stdOutExists != 0 ]; then
 	echo "Setting up fitbitd output redirection"
 
 	sudo defaults write $fitbitplistshort $stderrkey "$fitbitlogpath" 2>&1 > /dev/null
+	sudo defaults write $fitbitplistshort $stdoutkey "$fitbitlogpath" 2>&1 > /dev/null
 	sudo chmod a+r $fitbitplist
 
 	sudo touch $fitbitlogpath
@@ -33,9 +37,11 @@ if [ $exitStatus != 0 ]; then
 	sudo launchctl load $fitbitplist
 
 	sudo launchctl list $fitbitjobkey | grep $stderrkey 2>&1 > /dev/null
-	exitStatus=$?
-	if [ $exitStatus != 0 ]; then
-		echo "Couldn't find log redirection in launchd job! Please report an issue at $githubissues."
+	stdErrRedirected=$?
+	sudo launchctl list $fitbitjobkey | grep $stdoutkey 2>&1 > /dev/null
+	stdOutRedirected=$?
+	if [ $stdErrRedirected != 0 -o $stdOutRedirected != 0 ]; then
+		echo "Couldn't confirm log redirection in launchd job! Please report an issue at $githubissues."
 		exit 1
 	else
 		echo "fitbitd output redirection done"

@@ -5,19 +5,11 @@ Out of the box, the Fitbit software sends all its logs straight to Console. This
 - Redirect fitbitd's logs to its own log file at /var/log/fitbitd.log
 - Add an entry to OS X's built-in log rotation to compress and turn over these logs when they get large.
 
-## How to use
+## To Install
 
-1. Open Terminal, and copy and paste the following commands: (this will download the script, make it runnable, run it, and remove it)
+Mimicking [Homebrew](http://brew.sh), the install process is simple:
 
-	/usr/bin/curl -f -L -O cbowns.com/downloads/fitbit-install.sh
-	
-	chmod a+x fitbit-install.sh
-	
-	./fitbit-install.sh
-	
-	rm fitbit-install.sh
-	
-2. There's no step two.
+    curl -fsSL https://raw.github.com/cbowns/fitbit/master/install.sh | zsh -s
 
 ## Having issues?
 
